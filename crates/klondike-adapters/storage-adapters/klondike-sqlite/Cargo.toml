@@ -1,0 +1,14 @@
+[package]
+name = "klondike-sqlite"
+version = "0.1.0"
+description = "SQLite storage adapter for Klondike"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+klondike-core.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+sqlx.workspace = true
+uuid.workspace = true

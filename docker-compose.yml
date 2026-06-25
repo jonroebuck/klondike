@@ -1,0 +1,13 @@
+services:
+  klondike:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - klondike-data:/data
+    environment:
+      DATABASE_URL: "sqlite:///data/klondike.db?mode=rwc"
+      PORT: "3000"
+
+volumes:
+  klondike-data:

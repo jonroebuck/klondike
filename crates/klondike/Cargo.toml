@@ -1,0 +1,16 @@
+[package]
+name = "klondike"
+version = "0.1.0"
+description = "Klondike — wires together core, storage, and API adapters"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+klondike-core.workspace = true
+klondike-sqlite.workspace = true
+klondike-rest.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+tower-http.workspace = true
+uuid.workspace = true

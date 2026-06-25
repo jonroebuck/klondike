@@ -1,0 +1,16 @@
+[package]
+name = "klondike-rest"
+version = "0.1.0"
+description = "Axum REST API adapter for Klondike"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+klondike-core.workspace = true
+axum.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+uuid.workspace = true
