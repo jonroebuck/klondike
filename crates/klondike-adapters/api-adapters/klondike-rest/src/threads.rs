@@ -12,8 +12,8 @@ use super::error_to_response;
 
 pub fn routes<S: ThreadsApi + 'static>(state: Arc<S>) -> Router {
     Router::new()
-        .route("/api/v1/channels/{channel_id}/threads", get(list).post(create))
-        .route("/api/v1/threads/{id}", get(get_one))
+        .route("/api/v1/channels/:channel_id/threads", get(list).post(create))
+        .route("/api/v1/threads/:id", get(get_one))
         .with_state(state)
 }
 

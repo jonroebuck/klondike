@@ -791,6 +791,7 @@ dependencies = [
  "klondike-core",
  "klondike-rest",
  "klondike-sqlite",
+ "tokio",
  "tower-http",
  "uuid",
 ]
@@ -824,11 +825,17 @@ name = "klondike-server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "http",
  "klondike",
+ "klondike-core",
+ "serde",
+ "serde_json",
  "tokio",
+ "tower",
  "tower-http",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]

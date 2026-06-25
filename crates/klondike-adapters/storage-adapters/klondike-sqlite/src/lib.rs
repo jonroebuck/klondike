@@ -15,8 +15,9 @@ pub struct SqliteStorage {
 
 impl SqliteStorage {
     pub async fn new(database_url: &str) -> Result<Self, sqlx::Error> {
+        let max_conn = if database_url.contains(":memory:") { 1 } else { 5 };
         let pool = SqlitePoolOptions::new()
-            .max_connections(5)
+            .max_connections(max_conn)
             .connect(database_url)
             .await?;
         Ok(Self { pool })

@@ -14,3 +14,6 @@ async-trait.workspace = true
 axum.workspace = true
 tower-http.workspace = true
 uuid.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

@@ -13,7 +13,7 @@ use super::error_to_response;
 pub fn routes<S: ChannelsApi + 'static>(state: Arc<S>) -> Router {
     Router::new()
         .route("/api/v1/channels", get(list).post(create))
-        .route("/api/v1/channels/{id}", get(get_one))
+        .route("/api/v1/channels/:id", get(get_one))
         .with_state(state)
 }
 

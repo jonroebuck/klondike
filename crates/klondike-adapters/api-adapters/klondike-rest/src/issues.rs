@@ -13,9 +13,9 @@ use super::error_to_response;
 pub fn routes<S: IssuesApi + 'static>(state: Arc<S>) -> Router {
     Router::new()
         .route("/api/v1/issues", get(list).post(create))
-        .route("/api/v1/issues/{id}", get(get_one))
-        .route("/api/v1/issues/{id}/status", patch(update_status))
-        .route("/api/v1/issues/{id}/events", get(list_events))
+        .route("/api/v1/issues/:id", get(get_one))
+        .route("/api/v1/issues/:id/status", patch(update_status))
+        .route("/api/v1/issues/:id/events", get(list_events))
         .with_state(state)
 }
 
