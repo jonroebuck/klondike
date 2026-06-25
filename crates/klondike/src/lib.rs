@@ -99,4 +99,7 @@ impl ArtifactsApi for Klondike {
     async fn create_artifact(&self, input: CreateArtifact) -> Result<Artifact> {
         self.storage.create_artifact(input).await
     }
+    async fn get_artifact_content(&self, id: Uuid) -> Result<Option<Vec<u8>>> {
+        self.storage.get_artifact_content(id).await
+    }
 }

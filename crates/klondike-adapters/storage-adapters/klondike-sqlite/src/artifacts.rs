@@ -56,18 +56,31 @@ impl ArtifactsStorage for SqliteStorage {
             created_at: Utc::now(),
         };
 
-        sqlx::query("INSERT INTO artifacts (id, name, version, source_type, source_location, content_type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        sqlx::query("INSERT INTO artifacts (id, name, version, source_type, source_location, content_type, content, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
             .bind(artifact.id.to_string())
             .bind(&artifact.name)
             .bind(&artifact.version)
             .bind(&artifact.source_type)
             .bind(&artifact.source_location)
             .bind(&artifact.content_type)
+            .bind(input.content.as_deref())
             .bind(artifact.created_at.to_rfc3339())
             .execute(self.pool())
             .await
             .map_err(|e| Error::Storage(e.to_string()))?;
 
         Ok(artifact)
+    }
+
+    async fn get_artifact_content(&self, id: Uuid) -> Result<Option<Vec<u8>>> {
+        let row = sqlx::query("SELECT content FROM artifacts WHERE id = ?")
+            .bind(id.to_string())
+            .fetch_optional(self.pool())
+            .await
+            .map_err(|e| Error::Storage(e.to_string()))?
+            .ok_or(Error::NotFound { resource: "artifact", id })?;
+
+        Ok(row.try_get::<Option<Vec<u8>>, _>("content")
+            .map_err(|e| Error::Storage(e.to_string()))?)
     }
 }

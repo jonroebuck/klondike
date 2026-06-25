@@ -6,7 +6,8 @@ mod artifacts;
 
 use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
 
-const MIGRATIONS: &str = include_str!("../migrations/001_init.sql");
+const MIGRATIONS_001: &str = include_str!("../migrations/001_init.sql");
+const MIGRATIONS_002: &str = include_str!("../migrations/002_artifact_content.sql");
 
 #[derive(Clone)]
 pub struct SqliteStorage {
@@ -24,7 +25,8 @@ impl SqliteStorage {
     }
 
     pub async fn migrate(&self) -> Result<(), sqlx::Error> {
-        sqlx::raw_sql(MIGRATIONS).execute(&self.pool).await?;
+        sqlx::raw_sql(MIGRATIONS_001).execute(&self.pool).await?;
+        sqlx::raw_sql(MIGRATIONS_002).execute(&self.pool).await?;
         Ok(())
     }
 

@@ -191,6 +191,7 @@ async fn artifact_create_and_read_back() {
             source_type: "markdown".into(),
             source_location: "/docs/design.md".into(),
             content_type: "text/markdown".into(),
+            content: Some(b"# Design Doc\nHello world".to_vec()),
         })
         .await
         .unwrap();
@@ -205,6 +206,9 @@ async fn artifact_create_and_read_back() {
     assert_eq!(fetched.id, artifact.id);
     assert_eq!(fetched.name, "design-doc");
     assert_eq!(fetched.version, "1.0.0");
+
+    let content = k.get_artifact_content(artifact.id).await.unwrap();
+    assert_eq!(content, Some(b"# Design Doc\nHello world".to_vec()));
 }
 
 #[tokio::test]
@@ -218,6 +222,7 @@ async fn artifact_list_and_versioning() {
             source_type: "sql".into(),
             source_location: "/db/schema.sql".into(),
             content_type: "text/sql".into(),
+            content: None,
         })
         .await
         .unwrap();
@@ -229,6 +234,7 @@ async fn artifact_list_and_versioning() {
             source_type: "sql".into(),
             source_location: "/db/schema_v2.sql".into(),
             content_type: "text/sql".into(),
+            content: None,
         })
         .await
         .unwrap();
@@ -240,6 +246,7 @@ async fn artifact_list_and_versioning() {
             source_type: "sql".into(),
             source_location: "/db/schema_v3.sql".into(),
             content_type: "text/sql".into(),
+            content: None,
         })
         .await
         .unwrap();
@@ -253,6 +260,9 @@ async fn artifact_list_and_versioning() {
     assert_eq!(all[1].version, "2.0.0");
     assert_eq!(all[2].id, v3.id);
     assert_eq!(all[2].version, "3.0.0");
+
+    let content = k.get_artifact_content(v1.id).await.unwrap();
+    assert_eq!(content, None);
 }
 
 #[tokio::test]

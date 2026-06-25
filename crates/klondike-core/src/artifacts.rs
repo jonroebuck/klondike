@@ -20,4 +20,6 @@ pub struct CreateArtifact {
     pub source_type: String,
     pub source_location: String,
     pub content_type: String,
+    #[serde(default)]
+    pub content: Option<Vec<u8>>,
 }

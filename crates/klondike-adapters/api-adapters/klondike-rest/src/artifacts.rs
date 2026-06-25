@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::extract::{Path, State};
+use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::{Json, Router};
 use uuid::Uuid;
@@ -14,6 +15,7 @@ pub fn routes<S: ArtifactsApi + 'static>(state: Arc<S>) -> Router {
     Router::new()
         .route("/api/v1/artifacts", get(list).post(create))
         .route("/api/v1/artifacts/:id", get(get_one))
+        .route("/api/v1/artifacts/:id/content", get(get_content))
         .with_state(state)
 }
 
@@ -39,4 +41,19 @@ async fn create<S: ArtifactsApi>(
         .await
         .map(|a| (axum::http::StatusCode::CREATED, Json(a)))
         .map_err(error_to_response)
+}
+
+async fn get_content<S: ArtifactsApi>(
+    State(state): State<Arc<S>>,
+    Path(id): Path<Uuid>,
+) -> Result<impl IntoResponse, axum::http::StatusCode> {
+    let artifact = state.get_artifact(id).await.map_err(error_to_response)?;
+    let content = state.get_artifact_content(id).await.map_err(error_to_response)?;
+    match content {
+        Some(bytes) => Ok((
+            [(axum::http::header::CONTENT_TYPE, artifact.content_type)],
+            bytes,
+        )),
+        None => Err(axum::http::StatusCode::NO_CONTENT),
+    }
 }

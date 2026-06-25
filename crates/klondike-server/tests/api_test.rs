@@ -382,3 +382,78 @@ async fn artifact_list_versioning() {
     assert_eq!(artifacts[1].version, "2.0.0");
     assert_eq!(artifacts[2].version, "3.0.0");
 }
+
+#[tokio::test]
+async fn artifact_content_roundtrip() {
+    let app = app().await;
+
+    let resp = app
+        .clone()
+        .oneshot(json_request(
+            "POST",
+            "/api/v1/artifacts",
+            serde_json::json!({
+                "name": "readme",
+                "version": "1.0.0",
+                "source_type": "markdown",
+                "source_location": "/docs/readme.md",
+                "content_type": "text/markdown",
+                "content": [72, 101, 108, 108, 111]
+            }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), 201);
+    let artifact: Artifact = body_json(resp).await;
+
+    let resp = app
+        .clone()
+        .oneshot(get_request(&format!(
+            "/api/v1/artifacts/{}/content",
+            artifact.id
+        )))
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), 200);
+    assert_eq!(
+        resp.headers().get("content-type").unwrap().to_str().unwrap(),
+        "text/markdown"
+    );
+    let bytes = axum::body::to_bytes(resp.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    assert_eq!(&bytes[..], b"Hello");
+}
+
+#[tokio::test]
+async fn artifact_content_no_content_returns_204() {
+    let app = app().await;
+
+    let resp = app
+        .clone()
+        .oneshot(json_request(
+            "POST",
+            "/api/v1/artifacts",
+            serde_json::json!({
+                "name": "empty",
+                "version": "1.0.0",
+                "source_type": "sql",
+                "source_location": "/db/schema.sql",
+                "content_type": "text/sql"
+            }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), 201);
+    let artifact: Artifact = body_json(resp).await;
+
+    let resp = app
+        .clone()
+        .oneshot(get_request(&format!(
+            "/api/v1/artifacts/{}/content",
+            artifact.id
+        )))
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), 204);
+}
