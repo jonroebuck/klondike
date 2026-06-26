@@ -33,10 +33,10 @@ impl PostsStorage for SqliteStorage {
             .collect()
     }
 
-    async fn create_post(&self, input: CreatePost) -> Result<Post> {
+    async fn create_post(&self, thread_id: Uuid, input: CreatePost) -> Result<Post> {
         let post = Post {
             id: Uuid::new_v4(),
-            thread_id: input.thread_id,
+            thread_id,
             author: input.author,
             content: input.content,
             created_at: Utc::now(),

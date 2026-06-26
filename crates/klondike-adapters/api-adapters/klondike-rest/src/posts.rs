@@ -26,11 +26,10 @@ async fn list<S: PostsApi>(
 async fn create<S: PostsApi>(
     State(state): State<Arc<S>>,
     Path(thread_id): Path<Uuid>,
-    Json(mut input): Json<CreatePost>,
+    Json(input): Json<CreatePost>,
 ) -> Result<(axum::http::StatusCode, Json<Post>), axum::http::StatusCode> {
-    input.thread_id = thread_id;
     state
-        .create_post(input)
+        .create_post(thread_id, input)
         .await
         .map(|p| (axum::http::StatusCode::CREATED, Json(p)))
         .map_err(error_to_response)

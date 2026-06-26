@@ -13,7 +13,6 @@ pub struct Post {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CreatePost {
-    pub thread_id: Uuid,
     pub author: String,
     pub content: String,
 }

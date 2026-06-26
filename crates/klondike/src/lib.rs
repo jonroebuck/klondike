@@ -61,8 +61,8 @@ impl PostsApi for Klondike {
     async fn list_posts(&self, thread_id: Uuid) -> Result<Vec<Post>> {
         self.storage.list_posts(thread_id).await
     }
-    async fn create_post(&self, input: CreatePost) -> Result<Post> {
-        self.storage.create_post(input).await
+    async fn create_post(&self, thread_id: Uuid, input: CreatePost) -> Result<Post> {
+        self.storage.create_post(thread_id, input).await
     }
 }
 

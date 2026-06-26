@@ -7,5 +7,5 @@ use crate::Result;
 #[async_trait]
 pub trait PostsApi: Send + Sync {
     async fn list_posts(&self, thread_id: Uuid) -> Result<Vec<Post>>;
-    async fn create_post(&self, input: CreatePost) -> Result<Post>;
+    async fn create_post(&self, thread_id: Uuid, input: CreatePost) -> Result<Post>;
 }

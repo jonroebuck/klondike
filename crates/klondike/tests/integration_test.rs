@@ -87,8 +87,7 @@ async fn posts_append_and_order() {
         .unwrap();
 
     let p1 = k
-        .create_post(CreatePost {
-            thread_id: thread.id,
+        .create_post(thread.id, CreatePost {
             author: "bob".into(),
             content: "First post".into(),
         })
@@ -96,8 +95,7 @@ async fn posts_append_and_order() {
         .unwrap();
 
     let p2 = k
-        .create_post(CreatePost {
-            thread_id: thread.id,
+        .create_post(thread.id, CreatePost {
             author: "alice".into(),
             content: "Second post".into(),
         })
@@ -105,8 +103,7 @@ async fn posts_append_and_order() {
         .unwrap();
 
     let p3 = k
-        .create_post(CreatePost {
-            thread_id: thread.id,
+        .create_post(thread.id, CreatePost {
             author: "bob".into(),
             content: "Third post".into(),
         })

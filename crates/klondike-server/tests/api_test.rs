@@ -168,7 +168,6 @@ async fn posts_append_and_order() {
         .unwrap();
     let thread: Thread = body_json(resp).await;
 
-    let nil = "00000000-0000-0000-0000-000000000000";
     let posts_url = format!("/api/v1/threads/{}/posts", thread.id);
 
     let resp = app
@@ -176,7 +175,7 @@ async fn posts_append_and_order() {
         .oneshot(json_request(
             "POST",
             &posts_url,
-            serde_json::json!({ "thread_id": nil, "author": "bob", "content": "First" }),
+            serde_json::json!({ "author": "bob", "content": "First" }),
         ))
         .await
         .unwrap();
@@ -188,7 +187,7 @@ async fn posts_append_and_order() {
         .oneshot(json_request(
             "POST",
             &posts_url,
-            serde_json::json!({ "thread_id": nil, "author": "alice", "content": "Second" }),
+            serde_json::json!({ "author": "alice", "content": "Second" }),
         ))
         .await
         .unwrap();
@@ -200,7 +199,7 @@ async fn posts_append_and_order() {
         .oneshot(json_request(
             "POST",
             &posts_url,
-            serde_json::json!({ "thread_id": nil, "author": "bob", "content": "Third" }),
+            serde_json::json!({ "author": "bob", "content": "Third" }),
         ))
         .await
         .unwrap();
