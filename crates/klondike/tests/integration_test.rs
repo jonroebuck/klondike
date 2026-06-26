@@ -47,8 +47,7 @@ async fn thread_in_channel() {
         .unwrap();
 
     let thread = k
-        .create_thread(CreateThread {
-            channel_id: channel.id,
+        .create_thread(channel.id, CreateThread {
             title: "RFC: new API".into(),
             author: "alice".into(),
         })
@@ -80,8 +79,7 @@ async fn posts_append_and_order() {
         .unwrap();
 
     let thread = k
-        .create_thread(CreateThread {
-            channel_id: channel.id,
+        .create_thread(channel.id, CreateThread {
             title: "Hello".into(),
             author: "bob".into(),
         })

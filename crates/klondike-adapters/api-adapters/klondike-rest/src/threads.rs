@@ -34,11 +34,10 @@ async fn get_one<S: ThreadsApi>(
 async fn create<S: ThreadsApi>(
     State(state): State<Arc<S>>,
     Path(channel_id): Path<Uuid>,
-    Json(mut input): Json<CreateThread>,
+    Json(input): Json<CreateThread>,
 ) -> Result<(axum::http::StatusCode, Json<Thread>), axum::http::StatusCode> {
-    input.channel_id = channel_id;
     state
-        .create_thread(input)
+        .create_thread(channel_id, input)
         .await
         .map(|t| (axum::http::StatusCode::CREATED, Json(t)))
         .map_err(error_to_response)

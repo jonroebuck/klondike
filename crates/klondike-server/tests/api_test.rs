@@ -105,7 +105,6 @@ async fn threads_in_channel() {
             "POST",
             &format!("/api/v1/channels/{}/threads", channel.id),
             serde_json::json!({
-                "channel_id": "00000000-0000-0000-0000-000000000000",
                 "title": "Design review",
                 "author": "alice"
             }),
@@ -161,7 +160,6 @@ async fn posts_append_and_order() {
             "POST",
             &format!("/api/v1/channels/{}/threads", channel.id),
             serde_json::json!({
-                "channel_id": "00000000-0000-0000-0000-000000000000",
                 "title": "Hello",
                 "author": "bob"
             }),

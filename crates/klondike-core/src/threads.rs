@@ -13,7 +13,6 @@ pub struct Thread {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CreateThread {
-    pub channel_id: Uuid,
     pub title: String,
     pub author: String,
 }

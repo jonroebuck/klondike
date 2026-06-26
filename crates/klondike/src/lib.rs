@@ -51,8 +51,8 @@ impl ThreadsApi for Klondike {
     async fn get_thread(&self, id: Uuid) -> Result<Thread> {
         self.storage.get_thread(id).await
     }
-    async fn create_thread(&self, input: CreateThread) -> Result<Thread> {
-        self.storage.create_thread(input).await
+    async fn create_thread(&self, channel_id: Uuid, input: CreateThread) -> Result<Thread> {
+        self.storage.create_thread(channel_id, input).await
     }
 }
 

@@ -8,5 +8,5 @@ use crate::Result;
 pub trait ThreadsApi: Send + Sync {
     async fn list_threads(&self, channel_id: Uuid) -> Result<Vec<Thread>>;
     async fn get_thread(&self, id: Uuid) -> Result<Thread>;
-    async fn create_thread(&self, input: CreateThread) -> Result<Thread>;
+    async fn create_thread(&self, channel_id: Uuid, input: CreateThread) -> Result<Thread>;
 }

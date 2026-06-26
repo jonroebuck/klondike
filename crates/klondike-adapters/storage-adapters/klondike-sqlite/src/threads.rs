@@ -44,10 +44,10 @@ impl ThreadsStorage for SqliteStorage {
         row_to_thread(row).map_err(|e| Error::Storage(e.to_string()))
     }
 
-    async fn create_thread(&self, input: CreateThread) -> Result<Thread> {
+    async fn create_thread(&self, channel_id: Uuid, input: CreateThread) -> Result<Thread> {
         let thread = Thread {
             id: Uuid::new_v4(),
-            channel_id: input.channel_id,
+            channel_id,
             title: input.title,
             author: input.author,
             created_at: Utc::now(),
