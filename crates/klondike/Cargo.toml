@@ -1,6 +1,6 @@
 [package]
 name = "klondike"
-version = "0.1.0"
+version = "0.1.5"
 description = "Klondike — wires together core, storage, and API adapters"
 edition.workspace = true
 license.workspace = true

@@ -3,6 +3,7 @@ mod threads;
 mod posts;
 mod issues;
 mod artifacts;
+mod users;
 
 use std::sync::Arc;
 
@@ -12,14 +13,15 @@ use klondike_core::Error;
 
 pub fn router<S>(state: Arc<S>) -> Router
 where
-    S: ChannelsApi + ThreadsApi + PostsApi + IssuesApi + ArtifactsApi + 'static,
+    S: ChannelsApi + ThreadsApi + PostsApi + IssuesApi + ArtifactsApi + UsersApi + 'static,
 {
     Router::new()
         .merge(channels::routes(Arc::clone(&state)))
         .merge(threads::routes(Arc::clone(&state)))
         .merge(posts::routes(Arc::clone(&state)))
         .merge(issues::routes(Arc::clone(&state)))
-        .merge(artifacts::routes(state))
+        .merge(artifacts::routes(Arc::clone(&state)))
+        .merge(users::routes(state))
 }
 
 fn error_to_response(err: Error) -> axum::http::StatusCode {

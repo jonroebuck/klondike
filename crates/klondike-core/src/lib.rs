@@ -3,6 +3,7 @@ pub mod threads;
 pub mod posts;
 pub mod issues;
 pub mod artifacts;
+pub mod users;
 
 pub mod storage;
 pub mod api;

@@ -307,3 +307,154 @@ async fn get_nonexistent_channel_returns_not_found() {
     let result = k.get_channel(uuid::Uuid::new_v4()).await;
     assert!(result.is_err());
 }
+
+// ── User registration & subscription tests ────────────────────────────────────
+
+#[tokio::test]
+async fn test_user_registration() {
+    let k = setup().await;
+
+    let user = k.register_user().await.unwrap();
+    assert!(!user.id.is_nil());
+
+    // Unregister and verify the user is gone (subsequent op returns NotFound).
+    k.unregister_user(user.id).await.unwrap();
+    let err = k.get_feed(user.id).await.unwrap_err();
+    assert!(matches!(err, klondike_core::Error::NotFound { .. }));
+}
+
+#[tokio::test]
+async fn test_channel_subscription() {
+    let k = setup().await;
+
+    let user = k.register_user().await.unwrap();
+    let channel = k
+        .create_channel(CreateChannel { name: "general".into(), description: "".into() })
+        .await
+        .unwrap();
+
+    k.subscribe_to_channel(user.id, channel.id).await.unwrap();
+
+    let (ch_subs, th_subs) = k.list_subscriptions(user.id).await.unwrap();
+    assert_eq!(ch_subs.len(), 1);
+    assert_eq!(ch_subs[0].channel_id, channel.id);
+    assert!(th_subs.is_empty());
+
+    k.unsubscribe_from_channel(user.id, channel.id).await.unwrap();
+
+    let (ch_subs, _) = k.list_subscriptions(user.id).await.unwrap();
+    assert!(ch_subs.is_empty());
+}
+
+#[tokio::test]
+async fn test_thread_subscription() {
+    let k = setup().await;
+
+    let user = k.register_user().await.unwrap();
+    let channel = k
+        .create_channel(CreateChannel { name: "dev".into(), description: "".into() })
+        .await
+        .unwrap();
+    let thread = k
+        .create_thread(channel.id, CreateThread { title: "RFC".into(), author: "alice".into() })
+        .await
+        .unwrap();
+
+    k.subscribe_to_thread(user.id, channel.id, thread.id).await.unwrap();
+
+    let (ch_subs, th_subs) = k.list_subscriptions(user.id).await.unwrap();
+    assert!(ch_subs.is_empty());
+    assert_eq!(th_subs.len(), 1);
+    assert_eq!(th_subs[0].thread_id, thread.id);
+
+    k.unsubscribe_from_thread(user.id, thread.id).await.unwrap();
+
+    let (_, th_subs) = k.list_subscriptions(user.id).await.unwrap();
+    assert!(th_subs.is_empty());
+}
+
+#[tokio::test]
+async fn test_feed() {
+    let k = setup().await;
+
+    let user_a = k.register_user().await.unwrap();
+    let user_b = k.register_user().await.unwrap();
+
+    let channel = k
+        .create_channel(CreateChannel { name: "chat".into(), description: "".into() })
+        .await
+        .unwrap();
+    let thread = k
+        .create_thread(channel.id, CreateThread { title: "thread".into(), author: "sys".into() })
+        .await
+        .unwrap();
+
+    k.subscribe_to_thread(user_a.id, channel.id, thread.id).await.unwrap();
+    k.subscribe_to_thread(user_b.id, channel.id, thread.id).await.unwrap();
+
+    // user_b posts "hello"
+    k.create_post(thread.id, CreatePost { author: "user_b".into(), content: "hello".into() })
+        .await
+        .unwrap();
+
+    // user_a reads feed — should see "hello"
+    let feed = k.get_feed(user_a.id).await.unwrap();
+    assert_eq!(feed.len(), 1);
+    assert_eq!(feed[0].post.content, "hello");
+    assert_eq!(feed[0].channel_id, channel.id);
+    assert_eq!(feed[0].thread_id, thread.id);
+
+    // user_a reads feed again — already read, should be empty
+    let feed = k.get_feed(user_a.id).await.unwrap();
+    assert!(feed.is_empty());
+
+    // user_b posts "world"
+    k.create_post(thread.id, CreatePost { author: "user_b".into(), content: "world".into() })
+        .await
+        .unwrap();
+
+    // user_a reads feed — should see only "world"
+    let feed = k.get_feed(user_a.id).await.unwrap();
+    assert_eq!(feed.len(), 1);
+    assert_eq!(feed[0].post.content, "world");
+}
+
+#[tokio::test]
+async fn test_feed_multiple_threads() {
+    let k = setup().await;
+
+    let user = k.register_user().await.unwrap();
+    let channel = k
+        .create_channel(CreateChannel { name: "multi".into(), description: "".into() })
+        .await
+        .unwrap();
+    let thread_a = k
+        .create_thread(channel.id, CreateThread { title: "A".into(), author: "sys".into() })
+        .await
+        .unwrap();
+    let thread_b = k
+        .create_thread(channel.id, CreateThread { title: "B".into(), author: "sys".into() })
+        .await
+        .unwrap();
+
+    k.subscribe_to_thread(user.id, channel.id, thread_a.id).await.unwrap();
+    k.subscribe_to_thread(user.id, channel.id, thread_b.id).await.unwrap();
+
+    k.create_post(thread_a.id, CreatePost { author: "alice".into(), content: "msg-a".into() })
+        .await
+        .unwrap();
+    k.create_post(thread_b.id, CreatePost { author: "bob".into(), content: "msg-b".into() })
+        .await
+        .unwrap();
+
+    let feed = k.get_feed(user.id).await.unwrap();
+    assert_eq!(feed.len(), 2);
+
+    let post_a = feed.iter().find(|fp| fp.thread_id == thread_a.id).unwrap();
+    assert_eq!(post_a.post.content, "msg-a");
+    assert_eq!(post_a.channel_id, channel.id);
+
+    let post_b = feed.iter().find(|fp| fp.thread_id == thread_b.id).unwrap();
+    assert_eq!(post_b.post.content, "msg-b");
+    assert_eq!(post_b.channel_id, channel.id);
+}

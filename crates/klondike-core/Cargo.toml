@@ -1,6 +1,6 @@
 [package]
 name = "klondike-core"
-version = "0.1.0"
+version = "0.1.5"
 description = "Core traits and domain types for Klondike"
 edition.workspace = true
 license.workspace = true

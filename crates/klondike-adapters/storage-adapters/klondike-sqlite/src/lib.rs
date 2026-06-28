@@ -3,11 +3,13 @@ mod threads;
 mod posts;
 mod issues;
 mod artifacts;
+mod users;
 
 use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
 
 const MIGRATIONS_001: &str = include_str!("../migrations/001_init.sql");
 const MIGRATIONS_002: &str = include_str!("../migrations/002_artifact_content.sql");
+const MIGRATIONS_003: &str = include_str!("../migrations/003_users.sql");
 
 #[derive(Clone)]
 pub struct SqliteStorage {
@@ -64,11 +66,24 @@ impl SqliteStorage {
                         .execute(&self.pool)
                         .await?;
                 }
+
+                let has_users: i64 = sqlx::query_scalar(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='users'",
+                )
+                .fetch_one(&self.pool)
+                .await?;
+
+                if has_users > 0 {
+                    sqlx::raw_sql("INSERT INTO _schema_migrations (version) VALUES (3)")
+                        .execute(&self.pool)
+                        .await?;
+                }
             }
         }
 
         self.apply_migration(1, MIGRATIONS_001).await?;
         self.apply_migration(2, MIGRATIONS_002).await?;
+        self.apply_migration(3, MIGRATIONS_003).await?;
         Ok(())
     }
 

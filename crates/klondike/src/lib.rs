@@ -10,6 +10,7 @@ use klondike_core::issues::{CreateIssue, Issue, IssueEvent, UpdateIssueStatus};
 use klondike_core::posts::{CreatePost, Post};
 use klondike_core::storage::*;
 use klondike_core::threads::{CreateThread, Thread};
+use klondike_core::users::{ChannelSubscription, FeedPost, ThreadSubscription, User};
 use klondike_core::Result;
 use klondike_sqlite::SqliteStorage;
 
@@ -101,5 +102,53 @@ impl ArtifactsApi for Klondike {
     }
     async fn get_artifact_content(&self, id: Uuid) -> Result<Option<Vec<u8>>> {
         self.storage.get_artifact_content(id).await
+    }
+}
+
+#[async_trait]
+impl UsersApi for Klondike {
+    async fn register_user(&self) -> Result<User> {
+        self.storage.register_user().await
+    }
+    async fn unregister_user(&self, user_id: Uuid) -> Result<()> {
+        self.storage.unregister_user(user_id).await
+    }
+    async fn subscribe_to_channel(
+        &self,
+        user_id: Uuid,
+        channel_id: Uuid,
+    ) -> Result<ChannelSubscription> {
+        self.storage.subscribe_to_channel(user_id, channel_id).await
+    }
+    async fn unsubscribe_from_channel(
+        &self,
+        user_id: Uuid,
+        channel_id: Uuid,
+    ) -> Result<()> {
+        self.storage.unsubscribe_from_channel(user_id, channel_id).await
+    }
+    async fn subscribe_to_thread(
+        &self,
+        user_id: Uuid,
+        channel_id: Uuid,
+        thread_id: Uuid,
+    ) -> Result<ThreadSubscription> {
+        self.storage.subscribe_to_thread(user_id, channel_id, thread_id).await
+    }
+    async fn unsubscribe_from_thread(
+        &self,
+        user_id: Uuid,
+        thread_id: Uuid,
+    ) -> Result<()> {
+        self.storage.unsubscribe_from_thread(user_id, thread_id).await
+    }
+    async fn get_feed(&self, user_id: Uuid) -> Result<Vec<FeedPost>> {
+        self.storage.get_feed(user_id).await
+    }
+    async fn list_subscriptions(
+        &self,
+        user_id: Uuid,
+    ) -> Result<(Vec<ChannelSubscription>, Vec<ThreadSubscription>)> {
+        self.storage.list_subscriptions(user_id).await
     }
 }
