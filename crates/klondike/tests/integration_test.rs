@@ -261,6 +261,47 @@ async fn artifact_list_and_versioning() {
 }
 
 #[tokio::test]
+async fn test_channel_thread_post_flow() {
+    let k = setup().await;
+
+    let channel = k
+        .create_channel(CreateChannel {
+            name: "test".into(),
+            description: "".into(),
+        })
+        .await
+        .unwrap();
+    assert!(!channel.id.is_nil());
+
+    let thread = k
+        .create_thread(
+            channel.id,
+            CreateThread {
+                title: "test-thread".into(),
+                author: "ferb".into(),
+            },
+        )
+        .await
+        .unwrap();
+    assert!(!thread.id.is_nil());
+    assert_eq!(thread.channel_id, channel.id);
+
+    let post = k
+        .create_post(
+            thread.id,
+            CreatePost {
+                author: "ferb".into(),
+                content: "hello".into(),
+            },
+        )
+        .await
+        .unwrap();
+    assert!(!post.id.is_nil());
+    assert_eq!(post.thread_id, thread.id);
+    assert_eq!(post.content, "hello");
+}
+
+#[tokio::test]
 async fn get_nonexistent_channel_returns_not_found() {
     let k = setup().await;
     let result = k.get_channel(uuid::Uuid::new_v4()).await;
